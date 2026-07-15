@@ -1,6 +1,6 @@
 # Manual do Usuario - RotaSmart
 
-## Otimizacao de Entregas Multi-Parada
+## Gerenciamento de Veiculos e Otimizacao de Entregas
 
 ---
 
@@ -9,23 +9,32 @@
 1. [Visao Geral](#1-visao-geral)
 2. [Primeiros Passos](#2-primeiros-passos)
 3. [Configuracoes](#3-configuracoes)
-4. [Cadastro de Entregas](#4-cadastro-de-entregas)
-5. [Gerar Sequencia Otimizada](#5-gerar-sequencia-otimizada)
-6. [Visualizacao do Resultado](#6-visualizacao-do-result)
-7. [Mapa](#7-mapa)
-8. [Exportar Resultado](#8-exportar-resultado)
-9. [Dados Persistidos](#9-dados-persistidos)
-10. [Instalacao como PWA (Celular)](#10-instalacao-como-pwa-celular)
-11. [Erros Comuns](#11-erros-comuns)
-12. [Perguntas Frequentes](#12-perguntas-frequentes)
+4. [Gerenciamento de Veiculos](#4-gerenciamento-de-veiculos)
+5. [Cadastro de Entregas](#5-cadastro-de-entregas)
+6. [Gerar Sequencia Otimizada](#6-gerar-sequencia-otimizada)
+7. [Visualizacao do Resultado](#7-visualizacao-do-resultado)
+8. [Mapa](#8-mapa)
+9. [Exportar Resultado](#9-exportar-resultado)
+10. [Dados Persistidos](#10-dados-persistidos)
+11. [Instalacao como PWA (Celular)](#11-instalacao-como-pwa-celular)
+12. [Erros Comuns](#12-erros-comuns)
+13. [Perguntas Frequentes](#13-perguntas-frequentes)
 
 ---
 
 ## 1. Visao Geral
 
-O **RotaSmart** e um sistema de otimizacao de rotas de entrega que utiliza um algoritmo guloso (shortest-duration-first) para maximizar a quantidade de entregas realizadas dentro do tempo disponivel de expediente.
+O **RotaSmart** e um sistema de gerenciamento de veiculos e otimizacao de rotas de entrega. Suporta multiplos veiculos simultaneamente, onde cada um recebe sua propria lista de entregas e sequencia otimizada.
 
-### Como funciona o algoritmo
+### Como funciona
+
+1. Cadastre seus veiculos (placa, apelido, etc.)
+2. Configure o endereco do deposito e o tempo de expediente
+3. Selecione um veiculo e cadastre as entregas dele
+4. Gere a sequencia otimizada para cada veiculo
+5. Repita para os demais veiculos
+
+### Algoritmo de otimizacao
 
 Para cada entrega, o sistema calcula o **ciclo completo**:
 
@@ -37,23 +46,15 @@ As entregas sao ordenadas por duracao do ciclo crescente (menor primeiro) e aloc
 
 ### Exemplo pratico
 
-Se voce tem 10 entregas e 8 horas de expediente (480 minutos):
+Imagine 3 veiculos no dia:
 
-| Entrega | Ciclo (min) |
-|---------|-------------|
-| A       | 25          |
-| B       | 30          |
-| C       | 35          |
-| D       | 40          |
-| E       | 45          |
-| F       | 50          |
-| G       | 55          |
-| H       | 60          |
-| I       | 65          |
-| J       | 70          |
+| Veiculo | Entregas | Encaixadas | Nao encaixadas |
+|---------|----------|------------|----------------|
+| ABC-1234 | 8 | 7 | 1 |
+| XYZ-5678 | 6 | 6 | 0 |
+| FUR-9012 | 10 | 8 | 2 |
 
-O algoritmo soma: 25+30+35+40+45+50+55+60+65 = 405min (7h25) -> 8 entregas encaixadas.
-Entregas I (65min) e J (70min) ficam para o proximo dia.
+Cada veiculo tem sua propria sequencia otimizada independentemente.
 
 ---
 
@@ -62,25 +63,28 @@ Entregas I (65min) e J (70min) ficam para o proximo dia.
 ### Acessando o sistema
 
 1. Abra o navegador e acesse a URL do RotaSmart
-2. A tela principal sera exibida com tres secoes: Configuracoes, Cadastrar Entrega e a area de resultados
+2. A tela principal sera exibida com: Configuracoes, Veiculos, Cadastrar Entrega e area de resultados
 
 ### Fluxo de uso basico
 
 1. Configure o endereco do deposito
 2. Defina o tempo de expediente
-3. Cadastre as entregas do dia
-4. Clique em "Gerar Sequencia Otimizada"
-5. Consulte o resultado e o mapa
+3. Cadastre um veiculo
+4. Selecione o veiculo
+5. Cadastre as entregas dele
+6. Clique em "Gerar Sequencia Otimizada"
+7. Consulte o resultado e o mapa
+8. Repita os passos 3-7 para outros veiculos
 
 ---
 
 ## 3. Configuracoes
 
-A secao de configuracoes permite definir os parametros gerais do sistema.
+A secao de configuracoes permite definir os parametros gerais do sistema. As configuracoes sao compartilhadas entre todos os veiculos.
 
 ### 3.1 Endereco do Deposito
 
-O deposito e o ponto de partida e retorno de todas as entregas.
+O deposito e o ponto de partida e retorno de todas as entregas (compartilhado entre veiculos).
 
 1. Clique na area "Clique para configurar o deposito"
 2. Digite o endereco completo (Rua, numero - Bairro - Cidade, UF)
@@ -94,12 +98,12 @@ O sistema ira automaticamente converter o endereco em coordenadas geograficas (g
 
 ### 3.2 Horas de Expediente
 
-Define o tempo total disponivel para entregas no dia.
+Define o tempo total disponivel para entregas no dia. Esse tempo e aplicado a **cada veiculo individualmente**.
 
 - **Horas de expediente:** Numero de horas (padrao: 8)
 - **Minutos extras:** complemento de minutos (padrao: 0)
 
-Exemplo: Para um expediente de 6h40min, defina 6 horas e 40 minutos extras.
+Exemplo: Para um expediente de 6h40min, defina 6 horas e 40 minutos extras. Cada veiculo tera 6h40min disponiveis.
 
 ### 3.3 Tempo Padrao de Carga/Descarga
 
@@ -109,33 +113,78 @@ Esse valor sera pre-preenchido ao cadastrar novas entregas, mas pode ser alterad
 
 ---
 
-## 4. Cadastro de Entregas
+## 4. Gerenciamento de Veiculos
 
-### 4.1 Adicionar uma entrega
+O RotaSmart permite cadastrar e gerenciar multiplos veiculos. Cada veiculo e identificado por um nome, que pode ser a placa, apelido ou qualquer outra caracteristica.
 
-1. Preencha o **Endereco de destino** (obrigatorio)
-2. Preencha o **Cliente / Referencia** (obrigatorio)
-3. Opcionalmente, altere o **Tempo carga/descarga** (o valor padrao vem da configuracao)
-4. Clique em **Adicionar Entrega**
+### 4.1 Adicionar um veiculo
 
-A entrega sera adicionada a lista "Entregas do Dia".
+1. Na secao "Veiculos", digite o nome/placa do veiculo no campo de texto (ex: ABC-1D23)
+2. Clique em **Adicionar** ou pressione **Enter**
+3. O veiculo sera criado e selecionado automaticamente
 
-### 4.2 Editar entregas
+### 4.2 Selecionar um veiculo
+
+Clique no card do veiculo que deseja trabalhar. O veiculo selecionado fica destacado em azul.
+
+Ao selecionar um veiculo:
+- A secao "Cadastrar Entrega" aparece com o nome do veiculo
+- A lista de entregas mostra as desse veiculo
+- A sequencia otimizada e o mapa mostram os dados desse veiculo
+
+### 4.3 Renomear um veiculo
+
+1. Clique no icone de editar (caneta) ao lado do nome do veiculo
+2. Altere o nome no campo de texto
+3. Pressione **Enter** para confirmar
+
+### 4.4 Remover um veiculo
+
+1. Clique no icone de remover (X) ao lado do nome do veiculo
+2. Confirme a remocao
+
+**Atencao:** Remover um veiculo remove tambem todas as suas entregas e sequencias geradas.
+
+### 4.5 Indicadores na tag do veiculo
+
+Cada tag de veiculo exibe um numero ao lado do nome. Esse numero indica a quantidade de entregas cadastradas para aquele veiculo.
+
+### 4.6 Resumo dos veiculos
+
+Na secao de veiculos, e possivel exportar um relatorio geral que inclui todos os veiculos e suas sequencias (quando houver 2 ou mais veiculos cadastrados).
+
+---
+
+## 5. Cadastro de Entregas
+
+As entregas sao vinculadas ao veiculo selecionado. Para cadastrar entregas, primeiro selecione um veiculo.
+
+### 5.1 Adicionar uma entrega
+
+1. Selecione o veiculo desejado
+2. Preencha o **Endereco de destino** (obrigatorio)
+3. Preencha o **Cliente / Referencia** (obrigatorio)
+4. Opcionalmente, altere o **Tempo carga/descarga** (o valor padrao vem da configuracao)
+5. Clique em **Adicionar Entrega**
+
+A entrega sera adicionada a lista de entregas daquele veiculo.
+
+### 5.2 Editar entregas
 
 O RotaSmart nao permite editar entregas ja cadastradas. Para alterar uma entrega:
 
 1. Clique em **Remover** na entrega que deseja alterar
 2. Cadastre novamente com os dados corretos
 
-### 4.3 Remover uma entrega
+### 5.3 Remover uma entrega
 
 Clique no botao **Remover** ao lado da entrega na tabela.
 
-### 4.4 Limpar todas as entregas
+### 5.4 Limpar todas as entregas
 
-Clique em **Limpar Todas** para remover todas as entregas cadastradas. Uma confirmacao sera solicitada.
+Clique em **Limpar Todas** para remover todas as entregas do veiculo selecionado. Uma confirmacao sera solicitada. Isso nao afeta os outros veiculos.
 
-### 4.5 Campos do formulario
+### 5.5 Campos do formulario
 
 | Campo                | Obrigatorio | Descricao                                              |
 |----------------------|-------------|--------------------------------------------------------|
@@ -145,47 +194,60 @@ Clique em **Limpar Todas** para remover todas as entregas cadastradas. Uma confi
 
 ---
 
-## 5. Gerar Sequencia Otimizada
+## 6. Gerar Sequencia Otimizada
 
-### 5.1 Pre-requisitos
+### 6.1 Pre-requisitos
 
 Antes de gerar a sequencia, verifique:
 
 - [x] O endereco do deposito esta configurado e geocodificado
-- [x] Ha pelo menos uma entrega cadastrada
+- [x] Um veiculo esta selecionado
+- [x] O veiculo selecionado tem pelo menos uma entrega cadastrada
 - [x] O tempo de expediente esta definido
 
-### 5.2 Processo
+### 6.2 Processo
 
-1. Clique no botao verde **Gerar Sequencia Otimizada**
-2. O sistema ira:
-   - Geocodificar todos os enderecos das entregas (converter para coordenadas)
+1. Selecione o veiculo desejado
+2. Clique no botao verde **Gerar Sequencia Otimizada**
+3. O sistema ira:
+   - Geocodificar todos os enderecos das entregas daquele veiculo (converter para coordenadas)
    - Calcular o tempo de viagem ida e volta para cada entrega
    - Executar o algoritmo de ordenacao por duracao crescente
    - Exibir o resultado
 
 **Atencao:** O processo de geocodificacao e calculo de rotas pode levar alguns segundos, dependendo da quantidade de entregas. Aguarde a mensagem "Geocodificando enderecos e calculando rotas..."
 
-### 5.3 Entendendo o resultado
+### 6.3 Entendendo o resultado
 
 O resultado e dividido em tres partes:
 
-1. **Resumo de tempo** - Barra de progresso mostrando quantas horas foram utilizadas
+1. **Resumo de tempo** - Barra de progresso mostrando quantas horas foram utilizadas daquele veiculo
 2. **Sequencia numerada** - Lista ordenada das entregas que couberam no dia
 3. **Entregas nao encaixadas** - Entregas que ultrapassaram o tempo disponivel
 
+### 6.4 Otimizando varios veiculos
+
+Repita o processo para cada veiculo:
+
+1. Selecione o proximo veiculo
+2. Cadastre as entregas dele
+3. Clique em "Gerar Sequencia Otimizada"
+4. O resultado e salvo automaticamente para aquele veiculo
+
+Voce pode alternar entre veiculos a qualquer momento usando as tags na secao "Veiculos". O resultado de cada veiculo e preservado.
+
 ---
 
-## 6. Visualizacao do Resultado
+## 7. Visualizacao do Resultado
 
-### 6.1 Resumo de tempo
+### 7.1 Resumo de tempo
 
 Exibe uma barra de progresso com:
 - Tempo utilizado (ex: 6h40min)
 - Tempo disponivel (ex: 8h00min)
 - Percentual de uso (ex: 83%)
 
-### 6.2 Sequencia numerada
+### 7.2 Sequencia numerada
 
 Cada entrega na sequencia exibe:
 
@@ -201,15 +263,15 @@ Cada entrega na sequencia exibe:
 
 **Nota:** Os horarios sao calculados considerando saida as 08:00 e cada ciclo iniciando imediatamente apos o retorno da entrega anterior.
 
-### 6.3 Entregas nao encaixadas
+### 7.3 Entregas nao encaixadas
 
 Entregas que nao couberam no tempo de expediente sao listadas em vermelho com o tempo do ciclo necessario. Essas entregas devem ser realizadas no proximo dia ou em horario extra.
 
 ---
 
-## 7. Mapa
+## 8. Mapa
 
-Apos gerar a sequencia, um mapa interativo e exibido mostrando:
+Apos gerar a sequencia, um mapa interativo e exibido mostrando os pontos do veiculo selecionado:
 
 - **Marcador do deposito** - Ponto de partida/retorno
 - **Marcadores das entregas** - Numerados na ordem da sequencia
@@ -222,32 +284,44 @@ O mapa utiliza OpenStreetMap (gratuito) e permite:
 
 ---
 
-## 8. Exportar Resultado
+## 9. Exportar Resultado
 
-Apos gerar a sequencia, clique em **Exportar Resultado** para baixar um arquivo .txt com:
+### 9.1 Exportar por veiculo
 
+Apos gerar a sequencia de um veiculo, clique em **Exportar Resultado** para baixar um arquivo .txt com:
+
+- Nome do veiculo
 - Resumo do tempo utilizado
 - Lista numerada das entregas com enderecos e tempos
 - Lista das entregas nao encaixadas
 
-O arquivo sera baixado automaticamente com o nome `entregas-YYYY-MM-DD.txt`.
+O arquivo sera baixado automaticamente com o nome `{placa}-YYYY-MM-DD.txt`.
+
+### 9.2 Exportar relatorio geral
+
+Quando houver 2 ou mais veiculos cadastrados, aparecera o botao **Exportar Relatorio Geral (todos os veiculos)** na secao de veiculos. Esse relatorio inclui:
+
+- Data e deposito
+- Todos os veiculos com suas entregas e sequencias
+- Entregas nao encaixadas de cada veiculo
 
 ---
 
-## 9. Dados Persistidos
+## 10. Dados Persistidos
 
 O RotaSmart salva automaticamente no navegador:
 
 - **Configuracoes** (deposito, expediente, tempo padrao)
-- **Entregas do dia** (enderecos, clientes, tempos)
+- **Veiculos** (nomes, entregas, resultados de otimizacao)
+- **Veiculo selecionado** (qual esta ativo)
 
-Esses dados permanecem salvos mesmo apos fechar o navegador. Para limpar os dados, remova as entregas e configure novamente o deposito.
+Esses dados permanecem salvos mesmo apos fechar o navegador. Para limpar os dados, remova os veiculos e configure novamente o deposito.
 
 **Importante:** Os dados sao salvos localmente no navegador. Se acessar por outro dispositivo ou navegador, sera necessario cadastrar novamente.
 
 ---
 
-## 10. Instalacao como PWA (Celular)
+## 11. Instalacao como PWA (Celular)
 
 O RotaSmart funciona como um Progressive Web App (PWA), podendo ser instalado no celular como um app.
 
@@ -269,7 +343,7 @@ Apos a instalacao, o RotaSmart aparecera na tela inicial como um app comum, com 
 
 ---
 
-## 11. Erros Comuns
+## 12. Erros Comuns
 
 ### "Endereco nao encontrado"
 
@@ -295,6 +369,12 @@ Apos a instalacao, o RotaSmart aparecera na tela inicial como um app comum, com 
 
 **Solucao:** Volte a secao de Configuracoes e configure o endereco do deposito.
 
+### "Selecione um veiculo primeiro"
+
+**Causa:** Tentou cadastrar entregas ou gerar sequencia sem ter um veiculo selecionado.
+
+**Solucao:** Cadastre ou selecione um veiculo na secao "Veiculos".
+
 ### Tela em branco apos carregar
 
 **Causa:** Erro de JavaScript no navegador.
@@ -306,11 +386,19 @@ Apos a instalacao, o RotaSmart aparecera na tela inicial como um app comum, com 
 
 ---
 
-## 12. Perguntas Frequentes
+## 13. Perguntas Frequentes
 
 ### Posso cadastrar entregas de dias diferentes?
 
-O RotaSmart trabalha com entregas do dia. Ao finalizar o dia, cadastre as novas entregas do proximo dia e gere uma nova sequencia.
+O RotaSmart trabalha com entregas do dia. Ao finalizar o dia, remova as entregas ou cadastre novos veiculos para o proximo dia.
+
+### Cada veiculo tem seu proprio tempo de expediente?
+
+Sim. O tempo de expediente configurado e aplicado individualmente a cada veiculo. Se voce configura 8 horas, cada veiculo tera 8 horas disponiveis.
+
+### Posso ter veiculos com tempos de expediente diferentes?
+
+No momento, o tempo de expediente e o mesmo para todos os veiculos. O sistema trabalha com um unico valor de expediente compartilhado.
 
 ### O algoritmo sempre entrega a melhor sequencia?
 
@@ -326,11 +414,15 @@ Apos a primeira carga, o RotaSmart funciona parcialmente offline. As funcionalid
 
 ### Quantas entregas posso cadastrar?
 
-Nao ha limite tecnico, mas o desempenho pode ser afetado com muitas entregas (acima de 50) devido a quantidade de chamadas a API.
+Nao ha limite tecnico, mas o desempenho pode ser afetado com muitas entregas (acima de 50 por veiculo) devido a quantidade de chamadas a API.
 
 ### Os horarios sao exatos?
 
 Os horarios sao **estimativas** baseadas nos tempos de viagem calculados pela API. Fatores como transito, clima e tempo real de carga/descarga podem alterar os tempos reais.
+
+### Posso alternar entre veiculos apos gerar a sequencia?
+
+Sim. Basta clicar na tag de outro veiculo. A sequencia do veiculo anterior e preservada.
 
 ---
 
@@ -348,4 +440,4 @@ Os horarios sao **estimativas** baseadas nos tempos de viagem calculados pela AP
 
 ---
 
-*RotaSmart - Otimizacao de Entregas v1.0*
+*RotaSmart - Gerenciamento de Veiculos e Otimizacao de Entregas v2.0*
