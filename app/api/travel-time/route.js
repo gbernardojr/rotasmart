@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-const { computeTravelTime } = require('@/lib/googleMaps');
+const { computeTravelTime } = require('@/lib/openRouteService');
 
 /**
  * POST /api/travel-time

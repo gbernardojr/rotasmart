@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-const { geocodeAddress } = require('@/lib/googleMaps');
+const { geocodeAddress } = require('@/lib/openRouteService');
 
 /**
  * POST /api/geocode
